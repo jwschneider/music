@@ -1,8 +1,10 @@
 import Data.List
 import System.IO
+import System.Environment
+
 
 samplingRate = 44100 :: Double
-bitDepth = 65536 :: Double
+bitDepth = 32700 :: Double
 
 {- Takes in the number of the key on the piano and returns the corresponding
 	frequency in hz -}
@@ -22,5 +24,7 @@ printItems (x:xs) handle = do
 	printItems  xs handle
 
 main = do 
-	printItems  (playNote 40 2) stdout
+	args <- getArgs
+	let key = read (args!!0) :: Int
+	printItems  (playNote key 1) stdout
 	
