@@ -44,7 +44,7 @@ main = do
 	time <- getLine
 	let seglen = read time :: Double
 	vals <- getDoubles
-	if length vals > (round (samplingRate*seglen))
+	if length vals >= (round (samplingRate*seglen))
 		then do
 			let g = mkStdGen (round seglen)
 			let probs = randoms g :: [Double]

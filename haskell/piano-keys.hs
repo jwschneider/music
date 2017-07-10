@@ -2,7 +2,7 @@ import Data.List
 import System.IO
 import System.Environment
 
-density = 1000000 :: Int
+density = 100000 :: Int
 
 {- Takes in the number of the key on the piano and returns the corresponding
 	frequency in hz -}
