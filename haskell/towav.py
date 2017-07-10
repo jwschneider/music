@@ -5,7 +5,7 @@ import wave
 import struct
 import sys
 
-def write_wav(data, filename, framerate, amplitude):
+def write_wav(time, data, filename, framerate):
     wavfile = wave.open(filename, "w")
     nchannels = 1
     sampwidth = 2
@@ -21,12 +21,12 @@ def write_wav(data, filename, framerate, amplitude):
                         compname))
     frames = []
     for s in data:
-        mul = int(s * amplitude)
+        mul = int(s)
         # print "s: %f mul: %d" % (s, mul)
         frames.append(struct.pack('h', mul))
     # frames = (struct.pack('h', int(s*self.amp)) for s in sine_list)
     frames = ''.join(frames)
-    for x in xrange(0, 7200):
+    for x in xrange(0, time):
         wavfile.writeframes(frames)
     wavfile.close()
 
@@ -38,4 +38,4 @@ if __name__ == "__main__":
         except EOFError:
             break
         data.append(int(inp))
-    write_wav(data, "test.wav", 100000, 1)
+    write_wav(data[0], data[1:], "test.wav", 100000)
