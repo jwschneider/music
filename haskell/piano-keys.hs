@@ -2,7 +2,7 @@ import Data.List
 import System.IO
 import System.Environment
 
-density = 100000 :: Int
+density = 1000000 :: Int
 
 {- Takes in the number of the key on the piano and returns the corresponding
 	frequency in hz -}
@@ -11,9 +11,10 @@ keyFreq n
 	| (n >= 1) && (n <= 88) = (2 ** ((fromIntegral (n - 49)) / 12)) * 440
 	| otherwise = 0
 {- Takes in a Key number and a Time in seconds, and returns a sin wave with freq*time cycles,
-	and with the density of the points equal to the density set -} 
-playNote :: Int -> Double -> [Double]
-playNote key time = map (\ x -> sin(x)) $ linSpace density (0, ((keyFreq key)*time*2*pi)) 
+	and with the density of the points equal to the density set, scaled by amp, where 
+	0 < amp < 1 -} 
+playNote :: Int -> Double -> Double -> [Double]
+playNote key time amp = map (\ x -> amp*sin(x)) $ linSpace density (0, ((keyFreq key)*time*2*pi)) 
 
 
 linSpace :: Int -> (Double, Double) -> [Double]
@@ -29,11 +30,12 @@ printItems (x:xs) handle = do
 
 main = do 
 	args <- getArgs
-	if length args == 2
+	if length args == 3
 		then do
 			let key = read (args!!0) :: Int
 			let time = read (args!!1) :: Double
-			printItems  (time : (playNote key time)) stdout
+			let amp = read (args!!2) :: Double
+			printItems  (time : (playNote key time amp)) stdout
 		else do
 			hPutStrLn stderr "Wrong number of arguments"
 	
