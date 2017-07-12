@@ -14,7 +14,7 @@ keyFreq n
 	and with the density of the points equal to the density set, scaled by amp, where 
 	0 < amp < 1 -} 
 playNote :: Int -> Double -> Double -> [Double]
-playNote key time amp = map (\ x -> amp*sin(x)) $ linSpace density (0, ((keyFreq key)*time*2*pi)) 
+playNote key time amp = map (\ x -> amp*sin(x)) $ linSpace (density*time) (0, ((keyFreq key)*time*2*pi)) 
 
 
 linSpace :: Int -> (Double, Double) -> [Double]
