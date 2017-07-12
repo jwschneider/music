@@ -59,22 +59,28 @@ polyEval :: [Double] -> [Double] -> Double -> Double -> Double
 polyEval xvals (c:[]) p x0 = p + c
 polyEval xvals cs p x0 = polyEval (init xvals) (init cs) ((p + (last cs))*(x0 - (last (init xvals)))) x0
 
-evalChunk 
+
+
+{- Interpolates the polynomial with xvals and coeffs and the points given, returns a 
+	list of these points -}
+evalChunk :: [Double] -> [Double] -> [Double] -> [Double]
+evalChunk (x:[]) xvals coeffs = [polyEval xvals coeffs 0 x]
+evalChunk (x:xs) xvals coeffs = (polyEval xvals coeffs 0 x) : (evalChunk xs xvals coeffs)
 
 
 
-degree = 1000 :: Int
+degree = 100 :: Int
 
 {- Takes an list of values to be sampled, and returns a list of the sampled values -}
-sample :: [Double] -> [Double] -> Int -> [Double]
+sample :: [Double] -> [Double] -> Int -> [Double] -> [Double]
 sample [] [] ct out = out
 sample buf vals ct out
-	| ((length buf) < degree) = sample (buf : head vals) (tail vals) ct out
+	| ((length buf) < degree) = sample (buf ++ [head vals]) (tail vals) ct out
 	| ((length buf) == degree) = do
-	let dD = matrix degree degree (\(i, j) -> (0::Double, 0:Double))
+	let dD = matrix degree degree (\(i, j) -> (0::Double, 0::Double))
 	let coeffs = stripDif $ divDif dD (degree, degree) buf
-	if (ct == 10) then $ sample [] vals 1 (evalChunk 45 coeffs)
-		else $ sample [] vals (ct + 1) (evalChunk 44 coeffs)
+	if (ct == 10) then out ++ (sample [] vals 1 (evalChunk (linSpace 45 (1, (fromIntegral degree))) [1..(fromIntegral degree)] coeffs))
+		else out ++ (sample [] vals (ct + 1) (evalChunk (linSpace 44 (1, (fromIntegral degree))) [1..(fromIntegral degree)] coeffs))
 	
 
 main = do
@@ -84,8 +90,7 @@ main = do
 	if length vals >= (round (samplingRate*seglen))
 		then do
 			let g = mkStdGen (round seglen)
-			let probs = randoms g :: [Double]
-			let vals1 = scale $ sampleByRand vals probs (samplingRate*seglen / (fromIntegral (length vals)))
+			let vals1 = scale $ sample [] vals 1 [] 
 			hPrint stdout seglen
 			sendData stdout vals1
 		else do
