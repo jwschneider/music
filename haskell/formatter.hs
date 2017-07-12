@@ -10,15 +10,12 @@ import Data.Vector (toList)
 samplingRate = 44100 :: Double
 bitDepth = 32700 :: Double
 
-{- Takes list of values, a list of probabilaties, and the mark to beat, 
-	returns those of the list of values that beat the mark for a smooth sample -}
-sampleByRand :: [Double] -> [Double] -> Double -> [Double]
-sampleByRand (x:[]) ys mark
-	| ((ys!!0) <= mark) = [x]
-	| otherwise = []
-sampleByRand (x:xs) ys mark
-	| ((ys!!0) <= mark) = x : sampleByRand xs (tail ys) mark
-	| otherwise = sampleByRand xs (tail ys) mark
+{- simple linspace function that returns a list of num elements between left and right -}
+linSpace :: Int -> (Double, Double) -> [Double]
+linSpace num (left, right)
+	| (num == 1) = [right]
+	| otherwise = left : linSpace (num - 1) (left + ((right - left)/(fromIntegral num)), right)
+
 
 {- Scales the values in the array by the bitDepth -}
 scale :: [Double] -> [Double]
@@ -57,6 +54,28 @@ divDif mat (i, j) vals
 stripDif :: Matrix (Double, Double) -> [Double]
 stripDif mat = map (\(i, j) -> i) (toList (getDiag mat))
 
+{- Evaluates the polynomial with xvals and coeffs at the point x0 -}
+polyEval :: [Double] -> [Double] -> Double -> Double -> Double
+polyEval xvals (c:[]) p x0 = p + c
+polyEval xvals cs p x0 = polyEval (init xvals) (init cs) ((p + (last cs))*(x0 - (last (init xvals)))) x0
+
+evalChunk 
+
+
+
+degree = 1000 :: Int
+
+{- Takes an list of values to be sampled, and returns a list of the sampled values -}
+sample :: [Double] -> [Double] -> Int -> [Double]
+sample [] [] ct out = out
+sample buf vals ct out
+	| ((length buf) < degree) = sample (buf : head vals) (tail vals) ct out
+	| ((length buf) == degree) = do
+	let dD = matrix degree degree (\(i, j) -> (0::Double, 0:Double))
+	let coeffs = stripDif $ divDif dD (degree, degree) buf
+	if (ct == 10) then $ sample [] vals 1 (evalChunk 45 coeffs)
+		else $ sample [] vals (ct + 1) (evalChunk 44 coeffs)
+	
 
 main = do
 	time <- getLine
