@@ -2,11 +2,11 @@ import Data.List
 import System.IO
 import System.Environment
 
-combine :: [Double] -> [Double] -> [Double]
-combine (x:[]) ys = [(x + (head ys)) / 2]
-combine xs (y:[]) = [((head xs) + y) / 2]
-combine (x:xs) (y:ys) = ((x + y) / 2) : combine xs ys
-
+combine :: [[Double]] -> [Double]
+combine strs
+	| (length strs > 2) = combine ((zipWith (\x y -> (x + y) / 2) (head strs) (head (tail strs))) : (tail (tail strs)))
+	| (length strs == 2) = zipWith (\x y -> (x + y) / 2) (head strs) (head (tail strs))
+	| (length strs == 1) = head strs
 
 {- Read Doubles from input, sent them to a list -}
 getDoubles :: Handle -> IO [Double]
@@ -20,6 +20,7 @@ getDoubles handle = do
 
 {- Send the data to the handle -}
 sendData :: Handle -> [Double] -> IO()
+sendData handle [] = return ()
 sendData handle (x:[]) = hPrint handle x
 sendData handle (x:xs) = do
 	hPrint handle x
@@ -28,8 +29,6 @@ sendData handle (x:xs) = do
 
 main = do
 	args <- getArgs
-	str1 <- openFile (head args) ReadMode
-	str2 <- openFile (head (tail args)) ReadMode
-	vals1 <- getDoubles str1
-	vals2 <- getDoubles str2
-	sendData stdout (combine vals1 vals2)
+	handleList <- mapM (\x -> openFile x ReadMode) args
+	doubleList <- mapM getDoubles handleList
+	sendData stdout $ combine doubleList
