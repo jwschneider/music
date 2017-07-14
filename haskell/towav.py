@@ -32,10 +32,11 @@ def write_wav(time, data, filename, framerate):
 
 if __name__ == "__main__":
     data = []
+    out = sys.argv[1]
     while 1:
         try:
             inp = input()
         except EOFError:
             break
         data.append(int(inp))
-    write_wav(data[0], data[1:], "test.wav", 100000)
+    write_wav(data[0], data[1:], out, 100000)

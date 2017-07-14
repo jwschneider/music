@@ -20,6 +20,8 @@ triangle freq time amp = map (\t -> amp*abs(2*(t*freq - (fromIntegral (floor (0.
 sawtooth :: Double -> Double -> Double -> [Double]
 sawtooth freq time amp = map (\t -> amp*2*(t*freq - (fromIntegral (floor (0.5 + t*freq))))) $ linSpace (round ((fromIntegral density)*time)) (0, time)
 
+square :: Double -> Double -> Double -> [Double]
+square freq time amp = map (\t -> amp*(signum (sin(2*pi*freq*t)))) $ linSpace (round ((fromIntegral density)*time)) (0, time)
 
 {- Send the data to the handle -}
 sendData :: Handle -> [Double] -> IO()
@@ -42,3 +44,4 @@ main = do
 				"sin" -> sendData stdout $ (read time) : (sine (read freq) (read time) (read amp))
 				"tri" -> sendData stdout $ (read time) : (triangle (read freq) (read time) (read amp)) 
 				"saw" -> sendData stdout $ (read time) : (sawtooth (read freq) (read time) (read amp))
+				"sqr" -> sendData stdout $ (read time) : (square (read freq) (read time) (read amp))
