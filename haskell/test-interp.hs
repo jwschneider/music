@@ -43,7 +43,7 @@ evalChunk (x:xs) xvals coeffs = (polyEval xvals coeffs 0 x) : (evalChunk xs xval
 
 
 
-degree = 100 :: Int
+degree = 50 :: Int
 
 {- Takes an list of values to be sampled, and returns a list of the sampled values -}
 sample :: [Double] -> [Double] -> Int -> [Double] -> [Double]
@@ -53,8 +53,8 @@ sample buf vals ct out
 	| ((length buf) == degree) = do
 	let dD = matrix degree degree (\(i, j) -> (0::Double, 0::Double))
 	let coeffs = stripDif $ divDif dD (degree, degree) buf
-	if (ct == 10) then out ++ (sample [] vals 1 (evalChunk (linSpace 45 (1, (fromIntegral degree))) [1..(fromIntegral degree)] coeffs))
-		else out ++ (sample [] vals (ct + 1) (evalChunk (linSpace 44 (1, (fromIntegral degree))) [1..(fromIntegral degree)] coeffs))
+	if (ct == 10) then out ++ (sample [] vals 1 (evalChunk (linSpace 21 (1, (fromIntegral degree))) [1..(fromIntegral degree)] coeffs))
+		else out ++ (sample [] vals (ct + 1) (evalChunk (linSpace 20 (1, (fromIntegral degree))) [1..(fromIntegral degree)] coeffs))
 
 {- Send the data to the handle -}
 sendData :: Handle -> [Double] -> IO()
@@ -64,9 +64,8 @@ sendData handle (x:xs) = do
 	sendData handle xs
 
 main = do
-	let xs = linSpace 100 (0, 2*pi)
+	let xs = linSpace 500 (0, 2*pi)
 	let wav = map (\x -> sin(x)) xs
 	let dD = matrix degree degree (\(i, j) -> (0::Double, 0::Double))
-	let coeffs = stripDif $ divDif dD (100, 100) wav
-	sendData stdout coeffs	
-	
+	let coeffs = stripDif $ divDif dD (degree, degree) wav
+	sendData stdout (sample [] wav 1 [])	

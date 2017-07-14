@@ -69,18 +69,17 @@ evalChunk (x:xs) xvals coeffs = (polyEval xvals coeffs 0 x) : (evalChunk xs xval
 
 
 
-degree = 100 :: Int
+degree = 10 :: Int
 
 {- Takes an list of values to be sampled, and returns a list of the sampled values -}
-sample :: [Double] -> [Double] -> Int -> [Double] -> [Double]
-sample [] [] ct out = out
-sample buf vals ct out
-	| ((length buf) < degree) = sample (buf ++ [head vals]) (tail vals) ct out
+sample :: [Double] -> [Double] -> [Double] -> [Double]
+sample [] [] out = out
+sample buf vals out
+	| ((length buf) < degree) = sample (buf ++ [head vals]) (tail vals) out
 	| ((length buf) == degree) = do
 	let dD = matrix degree degree (\(i, j) -> (0::Double, 0::Double))
 	let coeffs = stripDif $ divDif dD (degree, degree) buf
-	if (ct == 10) then out ++ (sample [] vals 1 (evalChunk (linSpace 45 (1, (fromIntegral degree))) [1..(fromIntegral degree)] coeffs))
-		else out ++ (sample [] vals (ct + 1) (evalChunk (linSpace 44 (1, (fromIntegral degree))) [1..(fromIntegral degree)] coeffs))
+	out ++ (sample [] vals (evalChunk (linSpace 2 (1, (fromIntegral degree))) [1..(fromIntegral degree)] coeffs))
 	
 
 main = do
@@ -89,8 +88,7 @@ main = do
 	vals <- getDoubles
 	if length vals >= (round (samplingRate*seglen))
 		then do
-			let g = mkStdGen (round seglen)
-			let vals1 = scale $ sample [] vals 1 [] 
+			let vals1 = scale $ sample [] vals [] 
 			hPrint stdout seglen
 			sendData stdout vals1
 		else do
